@@ -4,14 +4,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Set;
 
+import model.Lista_Pokemons;
 import model.Pokemon;
+import factory.Conector;
 
 public class Contato {
 	
+	private Connection conector;
+	
 	public Contato(){
-		
+		this.conector = new Conector().getConnection();
 	}
 	
 	public void RecuperarLista() throws IOException {
@@ -24,49 +32,35 @@ public class Contato {
 	    
 	    ArrayList<String[]> recuperarDados = new ArrayList<String[]>();
 	    Pokemon pok = new Pokemon();
+	    Lista_Pokemons lista_pok = new Lista_Pokemons();
 	    int cont = 0;
+	    
 	    while(true){
 	    	String line = bufferedReader.readLine();
 	    	if(line == null) break;	
 	    	
 	    	if(line.contains("\"id")){
-	    		cont++; System.out.println("Contatdor: "+cont);
+	    		cont++;
 	    		if(cont >1) {
-	    			cont = 0; System.out.println("contador: "+cont);
-	    			//adicionar pokemon
+	    			if(!lista_pok.getLista_pokemons().containsKey(pok.getNum())) {
+	    				lista_pok.getLista_pokemons().put(pok.getNum(), pok);
+	    			}
 	    			pok = new Pokemon();
-	    		}
-	    		System.out.println("teste id"+line);
-	    		String aux = line.split(":")[1].trim().replaceAll(",", "");
-	    		System.out.println("teste id 2:"+aux);
-	    		
-	    		pok.setId(Integer.parseInt(aux));
-	    		System.out.println("id: " + line.split(":")[1]);
-	    		System.out.println("id: " + pok.getId());
+	    		}	    
+	    		String aux = line.split(":")[1].trim().replaceAll(",", "");	    			    		
+	    		pok.setId(Integer.parseInt(aux));	    		
 	    		
 	    	}
 	    	
-	    	if(line.contains("\"num")){
-	    		System.out.println("teste num:"+line);
-	    		String aux = line.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");
-	    		System.out.println("teste achei a stirng 2:"+aux);
-	    		
-	    		pok.setNum(aux);
-	    		System.out.println("num: " + line.split(":")[1]);
-	    		System.out.println("num: " + pok.getNum());
-	    		
+	    	if(line.contains("\"num")){	    		
+	    		String aux = line.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");	    			    		
+	    		pok.setNum(aux);	    		
 	    		
 	    	}
 	    	
-	    	if(line.contains("\"name")){
-	    		System.out.println("teste num:"+line);
-	    		String aux = line.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");
-	    		System.out.println("teste achei a stirng 3:"+aux);
-	    		
-	    		pok.setName(aux);
-	    		System.out.println("name: " + line.split(":")[1]);
-	    		System.out.println("name: " + pok.getName());
-	    		
+	    	if(line.contains("\"name")){	    		
+	    		String aux = line.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");	    			    		
+	    		pok.setName(aux);	    			    		
 	    		
 	    	}
 	    	
@@ -75,12 +69,9 @@ public class Contato {
 	    		while(true) {
 	    			String lineaux = bufferedReader.readLine();
 	    			if(lineaux.contains("]")) break;
-	    			
-	    			System.out.println("teste type:"+lineaux);
-	    			String aux = lineaux.replaceAll(",", "").replaceAll("\"", "");
-		    		
-	    			pok.getType().add(aux);
-	    			System.out.println("teste type lista:"+pok.getType());
+	    				    			
+	    			String aux = lineaux.replaceAll(",", "").replaceAll("\"", "");		    		
+	    			pok.getType().add(aux);	    			
 	    		}
 	    		
 	    	}
@@ -91,14 +82,10 @@ public class Contato {
 	    			String lineaux = bufferedReader.readLine();
 	    			if(lineaux.contains("]")) break;
 	    			
-	    			if(lineaux.contains("num")) {
-	    				System.out.println("teste next:"+lineaux);
-	    	    		String aux = lineaux.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");
-	    	    		System.out.println("teste next:"+aux);
-	    	    		
+	    			if(lineaux.contains("num")) {	    				
+	    	    		String aux = lineaux.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");	    	    		
 	    	    		pok.getNext_evolution().add(aux);
-	    	    		System.out.println("num: " + lineaux.split(":")[1]);
-	    	    		System.out.println("num: " + pok.getNext_evolution());
+	    	    		
 	    			}
 	    		}
 	    		
@@ -110,23 +97,60 @@ public class Contato {
 	    			String lineaux = bufferedReader.readLine();
 	    			if(lineaux.contains("]")) break;
 	    			
-	    			if(lineaux.contains("num")) {
-	    				System.out.println("teste next:"+lineaux);
-	    	    		String aux = lineaux.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");
-	    	    		System.out.println("teste next:"+aux);
-	    	    		
+	    			if(lineaux.contains("num")) {	    			
+	    	    		String aux = lineaux.split(":")[1].trim().replaceAll(",", "").replaceAll("\"", "");	    	    	
 	    	    		pok.getPre_evolution().add(aux);
-	    	    		System.out.println("num: " + lineaux.split(":")[1]);
-	    	    		System.out.println("num: " + pok.getPre_evolution());
+	    	    	
 	    			}
 	    		}
 	    		
 	    	}
 	    }
 	    	
-		
+
 	    
-	    bufferedReader.close();
-	    reader.close();
+//	    bufferedReader.close();
+//	    reader.close();
+//	    
+//	    Set<String> chaves = lista_pok.getLista_pokemons().keySet();
+//	    int contn = 0;
+//        for(String chave : chaves) {
+//        	System.out.println("Teste número: " +lista_pok.getLista_pokemons().get(chave).getNum());
+//            System.out.println("Teste nome: " +lista_pok.getLista_pokemons().get(chave).getName());
+//            System.out.println("Teste tipo: " +lista_pok.getLista_pokemons().get(chave).getType().toString());
+//            System.out.println("Teste pre: " +lista_pok.getLista_pokemons().get(chave).getPre_evolution().toString());
+//            System.out.println("Teste next: " +lista_pok.getLista_pokemons().get(chave).getNext_evolution().toString());
+//            contn++;
+//        }
+//        System.out.print(contn);
+        
+	    //Salvar no banco de dados MySQL
+		SalvarBD(lista_pok);
+	}
+	
+	//Salvar no Banco de dados MySQL
+	public void SalvarBD (Lista_Pokemons lista) {
+		
+        try {
+            String sql;
+            Set<String> chaves = lista.getLista_pokemons().keySet();
+            for(String chave : chaves) {
+            	sql = "INSERT INTO pokemon(num, name, tipo, pre_evolution, next_evolution) VALUES(?,?,?,?,?)";
+                PreparedStatement stmt = conector.prepareStatement(sql);
+                
+                stmt.setString(1, lista.getLista_pokemons().get(chave).getNum());
+                stmt.setString(2, lista.getLista_pokemons().get(chave).getName());
+                stmt.setString(3, lista.getLista_pokemons().get(chave).getType().toString());
+                stmt.setString(4, lista.getLista_pokemons().get(chave).getPre_evolution().toString());
+                stmt.setString(5, lista.getLista_pokemons().get(chave).getNext_evolution().toString());
+                
+                stmt.execute();
+                stmt.close();
+                
+            }
+        } catch (SQLException u) {
+            throw new RuntimeException(u);
+        }
+    
 	}
 }
